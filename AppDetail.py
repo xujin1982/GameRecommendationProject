@@ -47,6 +47,7 @@ with open(output_file,'ab') as f:
 				result = response.json()
 				break
 			except:
+				print '\nFailed to access info!'
 				time.sleep(5)
 				pass
 		f.write(json.dumps(result))
@@ -54,7 +55,7 @@ with open(output_file,'ab') as f:
 		current_count += 1
 		if current_count % 200 == 0:
 			time.sleep(300)
-			sys.stdout.write('\rStatus: {0:.2f}%'.format(current_count/total_count))
+			sys.stdout.write('\rStatus: {0:.2f}%'.format(current_count/total_count*100))
 			sys.stdout.flush()
 		else:
 			time.sleep(.5)
