@@ -4,10 +4,12 @@ import mysql.connector
 from sqlalchemy import create_engine
 from datetime import datetime
 import requests, json, os, time, sys, random, re
+import codecs
+codecs.register(lambda name: codecs.lookup('utf8') if name == 'utf8mb4' else None)
 
 path_steam_app_info = 'E:/GitHub/output/steam_app_info.csv'
 
-app_detail_file = '../output/2016-12-27_app_detail_test.txt'
+app_detail_file = '../output/wen_app_detail.txt'
 with open(app_detail_file, 'rb') as f:
     dic_app_detail = {'name':{}, 'type':{}, 'initial_price':{}, 'release_date':{}, 'score':{}, 
                       'recommendations':{}, 'windows':{}, 'mac':{}, 'linux':{}, 'header_image':{}}
@@ -16,13 +18,14 @@ with open(app_detail_file, 'rb') as f:
     count = 0
     for line in lst_raw_string:
         temp = json.loads(line)
-        tempid = temp.keys()[0]        
-        if temp[tempid]['success']:            
-            temp = temp[tempid].get('data')
+        tempid = temp.keys()[0]  
+        if not temp[tempid] == {}:
+            temp = temp[tempid]
             steam_appid = int(temp.get('steam_appid'))
             name = temp.get('name')
+            if not re.search('Mold on Pizza',name) == None:
+                name = 'Mold on Pizza'
             apptype = temp.get('type')
-
             if temp.get('is_free'):
                 initial_price = 0
             else:
@@ -43,14 +46,14 @@ with open(app_detail_file, 'rb') as f:
                             pass
             score = temp.get('metacritic',{}).get('score')
             recommendations = temp.get('recommendations',{}).get('total')
-            header_image = temp.get('header_image')
+            header_image = temp.get('header_image')       
             required_age = int(temp.get('required_age'))
             if not temp.get('developers') == None:
                 developers = temp.get('developers')[0]
             windows = 1 if temp.get('platforms').get('windows') else 0
             mac = 1 if temp.get('platforms').get('mac') else 0
             linux = 1 if temp.get('platforms').get('linux') else 0
-            count += 1            
+            count += 1
             dic_app_detail['name'].update({steam_appid:name})
             dic_app_detail['type'].update({steam_appid:apptype})
             dic_app_detail['initial_price'].update({steam_appid:initial_price})
@@ -69,7 +72,9 @@ df_app_detail.index.name = 'steam_appid'
 df_app_detail = df_app_detail[['name', 'type', 'initial_price', 'release_date', 'score', 
                                'recommendations', 'windows', 'mac', 'linux', 'header_image']]
 df_app_detail.reset_index(inplace=True)
-df_app_detail.to_csv(path_steam_app_info,encoding='utf8',index=False)
+df_app_detail.to_csv(path_steam_app_info,encoding='utf-8',index=False)
+
+
 
 engine = create_engine('mysql+mysqlconnector://root:1234@127.0.0.1/game_recommendation?charset=utf8mb4')
 engine.execute('''
