@@ -9,7 +9,22 @@ engine = sqlalchemy.create_engine('mysql+mysqlconnector://root:1234@127.0.0.1/ga
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Hello, World!\n\nAppend /recommendation/<userid> to the current url\n\nSome availble userids: 76561197960358716, 76561197960520753, 76561197960776822, 76561197961634835"
+    return render_template('index.html')	
+
+@app.route('/recommendation')
+def recommendation_index():
+	lst_pic = ['img/portfolio/cabin.png','img/portfolio/cake.png','img/portfolio/submarine.png','img/portfolio/game.png']
+	lst_userid = []
+	for i in range(4):
+		tempid = engine.execute('''
+			SELECT user_id FROM tbl_recommend_games
+			ORDER BY RAND()
+			LIMIT 1;
+			''').first()[0]
+		lst_userid.append([tempid,lst_pic[i]])	
+	#return "Hello, World!\n\nAppend /recommendation/<userid> to the current url\n\nSome availble userids: 76561197960358716, 76561197960520753, 76561197960776822, 76561197961634835"
+	return render_template('recommendation_index.html', lst_userid=lst_userid)
+
 
 
 @app.route('/recommendation/<userid>')
