@@ -66,8 +66,8 @@
         <!-- Jumbotron Header -->
         <header class="jumbotron hero-spacer">
             <h2>Recommender System</h2>
-            <p>The recommender system is a Data App project with the employment of pandas, Hadoop, Map/Reduce, pySpark and web crawler.</p>
-			<p>Four users are randomly chosen from a user datase, which has 4162 users in total.</p>
+            <p>The recommender system is a Data App project with the employment of Python(scikit-learn, NumPy, SciPy, pandas), SQL, Hadoop, Map/Reduce, pySpark and web crawler.</p>
+			<p>Four users are randomly chosen from a user datase.</p>
             <!-- <p><a class="btn btn-primary btn-large">Call to action!</a> -->
             </p>
         </header>
@@ -84,10 +84,10 @@
 
         <!-- Page Features -->
         <div class="row text-center">
-		{% for userid, pic in lst_userid %}
+		{% for userid in lst_userid %}
             <div class="col-md-3 col-sm-6 hero-feature">
                 <div class="thumbnail">
-                    <img src="{{ url_for('static', filename= pic) }}" alt="">
+                    <img src="{{ url_for('static', filename= 'img/portfolio/default_full.png') }}" alt="">
                     <div class="caption">
                         <p>Recommendations for</p>
                         <h4>{{userid}}</h4>
