@@ -84,10 +84,10 @@
 
         <!-- Page Features -->
         <div class="row text-center">
-		{% for userid in lst_userid %}
+		{% for userid, pic in lst_userid %}
             <div class="col-md-3 col-sm-6 hero-feature">
                 <div class="thumbnail">
-                    <img src="{{ url_for('static', filename= 'img/portfolio/default_full.png') }}" alt="">
+                    <img src="{{pic}}" alt="">
                     <div class="caption">
                         <p>Recommendations for</p>
                         <h4>{{userid}}</h4>

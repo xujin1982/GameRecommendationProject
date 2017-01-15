@@ -1,5 +1,7 @@
 from flask import Flask, render_template
-import sqlalchemy
+from bs4 import BeautifulSoup
+import re
+import sqlalchemy,requests, json, time
 
 
 # Initialize the Flask application
@@ -15,7 +17,6 @@ def index():
 
 @app.route('/recommendation')
 def recommendation_index():
-#	lst_pic = ['img/portfolio/cabin.png','img/portfolio/cake.png','img/portfolio/submarine.png','img/portfolio/game.png']
 	lst_userid = []
 	for i in range(4):
 		tempid = engine.execute('''
@@ -23,15 +24,44 @@ def recommendation_index():
 			ORDER BY RAND()
 			LIMIT 1;
 			''').first()[0]
-#		lst_userid.append([tempid,lst_pic[i]])	
-		lst_userid.append(tempid)
-	#return "Hello, World!\n\nAppend /recommendation/<userid> to the current url\n\nSome availble userids: 76561197960358716, 76561197960520753, 76561197960776822, 76561197961634835"
+		for n in xrange(3):
+			try:
+				url = 'https://steamcommunity.com/profiles/' + str(tempid)
+				r = requests.get(url)
+				soup = BeautifulSoup(r.content,'lxml')
+				for tag in soup.find_all('img'):
+					temp = tag['src']
+					if not re.search('full.jpg',temp) == None:
+						pic = temp
+				time.sleep(0.1)
+				break
+			except:
+				pic = 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'
+				time.sleep(0.1)
+				pass
+		lst_userid.append([tempid,pic])	
 	return render_template('recommendation_index.html', lst_userid=lst_userid)
 
 
 
 @app.route('/recommendation/<userid>')
 def recommendation(userid):
+	for n in xrange(3):
+		try:
+			url = 'https://steamcommunity.com/profiles/' + str(userid)
+			r = requests.get(url)
+			soup = BeautifulSoup(r.content,'lxml')
+			for tag in soup.find_all('img'):
+				temp = tag['src']
+				if not re.search('full.jpg',temp) == None:
+					pic = temp
+			time.sleep(0.1)
+			break
+		except:
+			pic = 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg'
+			time.sleep(0.1)
+			pass
+			
 	result = engine.execute('''
 		SELECT g0,g1,g2,g3,g4,g5,g6,g7,g8,g9 FROM tbl_recommend_games WHERE user_id=%s;
 		''' % userid).first()
@@ -51,8 +81,9 @@ def recommendation(userid):
 # https://startbootstrap.com/template-overviews/1-col-portfolio/
 	return render_template( 'recommendation.html',
 							userid = userid,
-							lst_game_urls = lst_recommended_games)
+							lst_game_urls = lst_recommended_games,
+							pic = pic)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
 
